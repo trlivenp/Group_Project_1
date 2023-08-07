@@ -1,2 +1,2 @@
-# Group_Project_1
-"What to watch?" First group project for Rutgers bootcamp
+# What to Watch?
+First group project for Rutgers bootcamp
