@@ -5,10 +5,35 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>What To Watch?</title>
     <link rel="stylesheet" href="./assets/css/style.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bungee+Inline&family=Lilita+One&family=Mochiy+Pop+P+One&family=Pacifico&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Rubik+Mono+One&family=Russo+One&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
 </head>
 <body>
-    
+    <header class="text-center">
+    <h1 class="page_Title pt-20 pb-10 text-6xl">What to Watch?</h1>
+    <div class="flex items-center max-w-md mx-auto bg-white rounded-lg " x-data="{ search: '' }">
+        <div class="w-full">
+            <input type="search" class="w-full px-4 py-1 text-gray-800 rounded-full focus:outline-none"
+                placeholder="search" x-model="search">
+        </div>
+        <div>
+            <button type="submit" class="flex items-center bg-blue-500 justify-center w-12 h-12 text-white rounded-r-lg"
+                :class="(search.length > 0) ? 'bg-purple-500' : 'bg-gray-500 cursor-not-allowed'"
+                :disabled="search.length == 0">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                    xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                </svg>
+            </button>
+        </div>
+    </div>
+    </header>
+    <div class="p-20 flex justify-center text-2xl space-x-8">
+        <a href="#" id="test" class="bg-white hover:bg-blue-500 hover:text-white text-gray-800 rounded-full py-3 px-8 shadow-md hover:shadow-2xl transition duration-500">My Favorites</a>
+      </div>
     <script src="./assets/js/script.js"></script>
 </body>
 </html>
