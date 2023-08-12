@@ -37,7 +37,7 @@ function createCard(imageSrc, tag, title) {
   return `
     <div class="card u-clearfix">
       <div class="card-media">
-        <img src="${imageSrc}" alt="" class="card-media-img" />
+        <img src="${imageSrc}" alt="${title}-poster" class="card-media-img" />
         <div class="card-media-preview u-flex-center">
           <svg fill="#ffffff" height="18" viewBox="0 0 24 24" width="18" xmlns="http://www.w3.org/2000/svg">
             <path d="M8 5v14l11-7z"/>
@@ -47,7 +47,7 @@ function createCard(imageSrc, tag, title) {
         <span class="card-media-tag card-media-tag-${tag.toLowerCase()}">${tag}</span>
       </div>
       <div class="card-body">
-        <h2 class="card-body-heading">${title}</h2>
+        <button type ="button" class="get-modal card-body-heading">${title}</button>
         <!-- ... Other card body elements ... -->
       </div>
     </div>
@@ -247,16 +247,18 @@ console.error(error);
 var modal = document.getElementById("myModal");
 
 // Get the button that opens the modal
-var btn = document.getElementById("myBtn");
+var btnArray = document.getElementsByClassName("get-modal");
 
 // Get the <span> element that closes the modal
 var span = document.getElementsByClassName("close")[0];
 
-// When the user clicks on the button, open the modal
-btn.onclick = function() {
+// When the user clicks on the button, open the modal 
+//This solves the issue of opening the modal; however the button that appears on top the image when hovering over the card becomes superfluous
+for(let i=0; i<btnArray.length; i++){
+btnArray[i].onclick = function() {
   modal.style.display = "block";
 }
-
+}
 // When the user clicks on <span> (x), close the modal
 span.onclick = function() {
   modal.style.display = "none";
