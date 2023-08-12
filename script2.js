@@ -1,4 +1,4 @@
-
+//Creating a movie card by retrieving data from OMDB API
 //Declaring the function that will be called in order to display a card for each movie title
 function createCard(imageSrc, tag, title, summary, rating, runtime) {
     return `
