@@ -37,9 +37,23 @@ function createCard(imageSrc, tag, title, summary, rating, runtime) {
     container.innerHTML += createCard(data.imageSrc, data.tag, data.title, data.summary, data.rating, data.runtime);
   });
 
-var selectedGenre = 80; 
+var genreList = document.getElementById("genre-list");
 
-const options = {
+var selectedGenre; 
+
+var genreMovie;
+
+var advMovieSearchEndpoint = 'https://advanced-movie-search.p.rapidapi.com/discover/movie/?with_genres=';
+
+genreList.addEventListener("click", function(event){
+  var element = event.target;
+
+var genreListItem = element.parentElement;
+selectedGenre = genreListItem.className;
+
+searchGenre= advMovieSearchEndpoint + selectedGenre;
+
+const advMovieSearchOptions = {
 	method: 'GET',
 	headers: {
 		'X-RapidAPI-Key': 'aed62a6282msh245eac67e8ef1f5p1a61d3jsn48e680928113',
@@ -47,34 +61,136 @@ const options = {
 	}
 };
 
+var searchURL ;
+
 for(let k=0; k<10; k++){ //Iterating through the first 10 pages in order to find "horror" movies in english and with a vote average of at least 8.
 
-var url = 'https://advanced-movie-search.p.rapidapi.com/discover/movie/?with_genres='+selectedGenre +'&page='+ k;
-
-fetch(url, options)
-.then(function (response) {
-  if (!response.ok) { //If the response status is not within the 200s range, then halt the execution of the fetch request
-    return;
-  }
-
-  var result = response.json();
-  console.log(result);
-  console.log(response);
-  return result;
-}).then(function (data){
- 
-  console.log(data);
-  console.log(data.results);
-  console.log(data.results.length);
-
-  for(i=0; i<data.results.length; i++){
-
-    if(data.results[i].vote_average >= 8 && data.results[i].original_language =="en"){
-    console.log(data.results[i].original_title);
+   searchURL = searchGenre +'&page='+ k;
+  
+  fetch(searchURL, advMovieSearchOptions)
+  .then(function (response) {
+    if (!response.ok) { //If the response status is not within the 200s range, then halt the execution of the fetch request
+      return;
     }
+  
+    var result = response.json();
+    console.log(result);
+  
+    return result;
+  }).then(function (data){
+   
+    console.log(data); //An object with the following properties: page, results, total_pages, total_results
+    console.log(data.results); //An array with 20 elements, each one of them representing a movie (about 20 movies per page)
+    console.log(data.results.length);//Outputs "20"
+  
+    for(i=0; i<data.results.length; i++){
+  
+      if(data.results[i].vote_average >= 8 && data.results[i].original_language =="en"){
+      console.log(data.results[i].original_title);
+
+      genreMovie = data.results[i].original_title; //The variable temporarily stores the title of a movie from the chosen genre.
+
+      console.log(data.results[i].id); //Apparently, it is not the imdb.com id
+      
+      fetchOmdbInfo(genreMovie);//For each movie from the selected genre, with a score of at least 8 and originally in english, we are going to gather data using OMDB in order to create a card for it.
+
+      }
+    }
+  });
   }
-});
-}
+
+})
+
+ //Function to handle OMDB fetch request by movie title.
+
+  
+ function fetchOmdbInfo(movieTitle){
+ 
+ const omdbAPIKey =  "55778eb2"; //API key to OMDB
+ 
+ var omdbURL, omdbData;
+ 
+ omdbURL = 'https://www.omdbapi.com/?apikey=' + omdbAPIKey + '&t='+ genreMovie + '&type=movie&r=JSON';
+ 
+ 
+  fetch(omdbURL)
+   .then(function (response) {
+     if (!response.ok) { //If the response status is not within the 200s range, then halt the execution of the fetch request
+       return;
+     }
+     var result= response.json();
+     console.log(result);
+     return result;
+     }).then(function (omdbData){
+ 
+     console.log(omdbData);
+     console.log(omdbData.Plot);
+     //oData.Plot;
+     console.log(omdbData.Poster)
+
+     //var moviePosterUrl = omdbData.Poster;
+   
+     
+     container.innerHTML += createCard(omdbData.Poster, omdbData.Genre, genreMovie, omdbData.Plot, omdbData.Rated, omdbData.Runtime);
+     //console.log(oData.Actors);
+     //console.log(oData.Country);
+     //console.log(oData.Director);
+     //console.log(oData.Genre);
+     //console.log(oData.Language);
+     //console.log(oData.Metascore);
+     //console.log(oData.Rated);
+     //console.log(oData.Runtime);
+     //console.log(oData.Title);
+     //console.log(oData.Writer);
+     //console.log(oData.Year);
+     //console.log(oData.imdbID);
+     //console.log(oData.tomatoMeter);
+     //console.log(oData.tomatoUserRating);
+ 
+   });
+ 
+ }
+ 
+ 
+ 
+ /* This has 
+ var selectedTitle;
+ var movieStreamOpts = [];
+ var movieStreamOpt = new Array (5);
+ var movieData = new Array(4);
+ 
+ 
+ // Get the modal
+ var modal = document.getElementById("myModal");
+ 
+ // Get the button that opens the modal
+ var btnArray = document.getElementsByClassName("get-modal");
+ console.log(btnArray);
+ console.log(btnArray.length);
+ 
+ // Get the <span> element that closes the modal
+ var span = document.getElementsByClassName("close")[0];
+ 
+ // When the user clicks on the button, open the modal
+
+ for(let i=0; i< btnArray.length; i++){
+   btnArray[i].addEventListener('click', function() {
+     modal.style.display = "block";
+   })
+ }
+ 
+ 
+ // When the user clicks on <span> (x), close the modal
+ span.onclick = function() {
+   modal.style.display = "none";
+ }
+ 
+ // When the user clicks anywhere outside of the modal, close it
+ window.onclick = function(event) {
+   if (event.target == modal) {
+     modal.style.display = "none";
+   }
+ } */
 /* This are all the genres available, but the classification is really bad
 {
   "genres": [
