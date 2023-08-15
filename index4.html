@@ -49,15 +49,17 @@
                 </ul>
             </div>
 
-            <label
-                class="drop-shadow-md flex items-center relative w-max cursor-pointer select-none my-favorites-toggle">
-                <span class="text-2xl  mr-3  text-white ">My Favorites</span>
-                <input type="checkbox"
-                    class="appearance-none transition-colors cursor-pointer w-14 h-7 rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-black focus:ring-blue-500 bg-red-500" />
-                <span class="absolute font-medium text-xs uppercase right-1 text-white"> OFF </span>
-                <span class="absolute font-medium text-xs uppercase right-8 text-white"> ON </span>
-                <span class="w-7 h-7 right-7 absolute rounded-full transform transition-transform bg-gray-200"></span>
-            </label>
+            <label class="favorites-toggle">
+                <span class="text-2xl  mr-3  text-white">My Favorites</span>
+                <label class="relative inline-flex items-center">
+                    <input type="checkbox"
+                        class="favorites-toggle-checkbox appearance-none transition-colors cursor-pointer w-14 h-7 rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-black focus:ring-blue-500 bg-red-500" />
+                    <span class="absolute font-medium text-xs uppercase right-1 text-white">OFF</span>
+                    <span class="absolute font-medium text-xs uppercase right-8 text-white">ON</span>
+                    <span
+                        class="favorites-toggle-switch w-7 h-7 right-7 absolute rounded-full transform transition-transform bg-gray-200"></span>
+                </label>
+        </div>
 
     </header>
     </div>
