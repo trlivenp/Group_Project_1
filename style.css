@@ -207,11 +207,12 @@ input:checked ~ span:last-child {
   position: relative;
 }
 
+/* Original styling for the favorite button */
 .card-media-preview {
-  background-color: #00AEA2;
+  background-color: lightslategrey;
   border-radius: 50%;
   bottom: 11px;
-  box-shadow: 0 0 4px rgba(0,0,0,.14), 0 4px 8px rgba(0,0,0,.28);
+  box-shadow: 0 0 4px rgba(0, 0, 0, 0.14), 0 4px 8px rgba(0, 0, 0, 0.28);
   cursor: pointer;
   height: 30px;
   opacity: 0;
@@ -223,15 +224,18 @@ input:checked ~ span:last-child {
   z-index: 3;
 }
 
-.card-media-preview:hover {
-  background-color: #009d92;
-  box-shadow: 0 0 6px rgba(0,0,0,.16), 0 6px 12px rgba(0,0,0,.32);
-}
-
+/* Styling when the card is being hovered */
 .card:hover .card-media-preview {
   opacity: 1;
   transform: translateY(0);
 }
+
+/* Additional styling for the favorite button when it's marked as a favorite */
+.card-media-preview.favorite {
+  background-color: red; /* Change the background color */
+  /* You can add more styling to indicate it's a favorite */
+}
+
 
 .card-media-tag {
   border-radius: 2px;

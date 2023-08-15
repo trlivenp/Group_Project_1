@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>What To Watch?</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Bungee+Inline&family=Lilita+One&family=Mochiy+Pop+P+One&family=Pacifico&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Rubik+Mono+One&family=Russo+One&display=swap"
+        rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="./style.css" />
+</head>
+
+<body>
+    <header class="text-center">
+        <h1 class="page_Title pt-20 pb-10 text-6xl">What to Watch?</h1>
+        <div class="flex justify-center space-x-8">
+
+            <div class="dropdown inline-block relative">
+                <button class="bg-white py-3 px-5 rounded-lg inline-flex items-center">
+                    <span class="mr-2" style="font-size: 24px;">Genres</span>
+                    <svg class="fill-current h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                        <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />
+                    </svg>
+                </button>
+                <ul id="genre-list" class="dropdown-menu absolute hidden text-white pt-2">
+                    <li class="28"><a class="rounded-t bg-gray-700 hover:bg-gray-900 py-3 px-5 block whitespace-no-wrap"
+                            href="#">Action</a></li>
+                    <li class="12"><a class="bg-gray-700 hover:bg-gray-900 py-3 px-5 block whitespace-no-wrap"
+                            href="#">Adventure</a></li>
+                    <li class="35"><a class=" bg-gray-700 hover:bg-gray-900 py-3 px-5 block whitespace-no-wrap"
+                            href="#">Comedy</a></li>
+                    <li class="18"><a class=" bg-gray-700 hover:bg-gray-900 py-3 px-5 block whitespace-no-wrap"
+                            href="#">Drama</a></li>
+                    <li class="14"><a class=" bg-gray-700 hover:bg-gray-900 py-3 px-5 block whitespace-no-wrap"
+                            href="#">Fantasy</a></li>
+                    <li class="80"><a class="bg-gray-700 hover:bg-gray-900 py-3 px-5 block whitespace-no-wrap"
+                            href="#">Horror</a></li>
+                    <li class="9648"><a class="bg-gray-700 hover:bg-gray-900 py-3 px-5 block whitespace-no-wrap"
+                            href="#">Mystery</a></li>
+                    <li class="10749"><a class="bg-gray-700 hover:bg-gray-900 py-3 px-5 block whitespace-no-wrap"
+                            href="#">Romance</a></li>
+                    <li class="878"><a
+                            class="rounded-b bg-gray-700 hover:bg-gray-900 py-3 px-5 block whitespace-no-wrap"
+                            href="#">Sci-Fi</a></li>
+                </ul>
+            </div>
+
+            <label
+                class="drop-shadow-md flex items-center relative w-max cursor-pointer select-none my-favorites-toggle">
+                <span class="text-2xl  mr-3  text-white ">My Favorites</span>
+                <input type="checkbox"
+                    class="appearance-none transition-colors cursor-pointer w-14 h-7 rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-black focus:ring-blue-500 bg-red-500" />
+                <span class="absolute font-medium text-xs uppercase right-1 text-white"> OFF </span>
+                <span class="absolute font-medium text-xs uppercase right-8 text-white"> ON </span>
+                <span class="w-7 h-7 right-7 absolute rounded-full transform transition-transform bg-gray-200"></span>
+            </label>
+
+    </header>
+    </div>
+    <div class="container"></div>
+
+    <!-- The Modal -->
+    <div id="myModal" class="modal" style="display:none;">
+        <!-- Modal content -->
+        <div class="modal-content">
+            <button class="relative bg-white rounded-lg shadow dark:bg-gray-700">
+                <span class="close">&times;</span>
+            </button>
+            <!-- Modal header -->
+            <div class="px-6 py-4 border-b rounded-t dark:border-gray-600">
+                <h3 id="movie-title"
+                    class="text-base font-semibold text-gray-900 lg:text-xl dark:text-white text-center ">
+                </h3>
+                <a id="imdb"> </a>
+            </div>
+            <!-- Modal body -->
+            <div class="p-6">
+                <p id="more-info" class="text-sm font-normal text-gray-500 dark:text-gray-400"></p>
+                <ul id="stream-serv-blocks" class="my-4 space-y-3">
+                </ul>
+
+            </div>
+        </div>
+    </div>
+
+    </div>
+
+
+    <script src="https://cdn.jsdelivr.net/npm/dayjs@1.11.9/dayjs.min.js"></script>
+    <script src="./script4.js"></script>
+
+
+</body>
+
+</html>

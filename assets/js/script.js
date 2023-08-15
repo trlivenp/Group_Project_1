@@ -4,33 +4,31 @@ const moviesDatabaseUrl = 'https://moviesdatabase.p.rapidapi.com/titles';//The e
 var topRated = "https://moviesdatabase.p.rapidapi.com/titles?list=top_rated_250";
 var the_Result;
 const MDoptions = { //Second argument of the fetch request
-	method: 'GET',
-	headers: {
-		'X-RapidAPI-Key': 'af06b5a5d2msh06f994de0bb7900p193487jsne9a0d8d839a9',
-		'X-RapidAPI-Host': 'moviesdatabase.p.rapidapi.com'
-	}
+  method: 'GET',
+  headers: {
+    'X-RapidAPI-Key': 'af06b5a5d2msh06f994de0bb7900p193487jsne9a0d8d839a9',
+    'X-RapidAPI-Host': 'moviesdatabase.p.rapidapi.com'
+  }
 };
 try {  //Try the piece of code below
-	fetch(topRated, MDoptions)
-      .then(function (response) {
-        if (!response.ok) { //If the response status is not within the 200s range, then halt the execution of the fetch request
-          return;
-        }
-        the_Result = response.json();
-        console.log(the_Result);
-        return the_Result;
-      }).then(function (data){
-        if(!data){
-          return;
-        }
-        console.log(data);
-        console.log(data.entries);
-        console.log(data.next);
-        console.log(data.page);
-        console.log(data.results);
-      })
+  fetch(topRated, MDoptions)
+    .then(function (response) {
+      if (!response.ok) { //If the response status is not within the 200s range, then halt the execution of the fetch request
+        return;
+      }
+      return response.json();
+    }).then(function (data) {
+      if (!data) {
+        return;
+      }
+      console.log(data);
+      // console.log(data.entries);
+      // console.log(data.next);
+      // console.log(data.page);
+      // console.log(data.results);
+    })
 } catch (error) { //If something goes wrong, then do this to alert the user
-	console.error(error);
+  console.error(error);
 }
 //Declaring the function that will be called in order to display a card for each movie title
 function createCard(imageSrc, tag, title) {
@@ -55,7 +53,7 @@ function createCard(imageSrc, tag, title) {
 }
 
 const cardsData = [ //An array whose elements are movie-data objects whose properties we have to gather from the response
-  { imageSrc: "https://s18.postimg.cc/v0mympf7t/lmf1.jpg", tag: "Action", title: "Batman" }, 
+  { imageSrc: "https://s18.postimg.cc/v0mympf7t/lmf1.jpg", tag: "Action", title: "Batman" },
   { imageSrc: "https://s12.postimg.cc/t0h9q7999/lmf0.jpg", tag: "Western", title: "Lone Ranger" },
   { imageSrc: "https://s13.postimg.cc/h8spyr37b/lmf2.jpg", tag: "Action", title: "Superman" },
   // ... Add more cards data here ...
@@ -63,30 +61,31 @@ const cardsData = [ //An array whose elements are movie-data objects whose prope
 
 const container = document.querySelector(".container");
 //Iterates through the movie-data array; for each "data" object, the createCard function is called and the result is appended to the conatiner as innerHTML
-cardsData.forEach(data => { 
+cardsData.forEach(data => {
   container.innerHTML += createCard(data.imageSrc, data.tag, data.title);
 });
 
 /*OMDB fetch request: by movie title*/
 
-const omdbAPIKey =  "55778eb2"; //API key to OMDB
+const omdbAPIKey = "55778eb2"; //API key to OMDB
 
 var sUrl, sMovie, oData;
 
 sMovie = "Citizen Kane";
 
-sUrl = 'https://www.omdbapi.com/?apikey=' + omdbAPIKey +'&t=' + sMovie + '&type=movie&tomatoes=true&r=JSON';
+sUrl = 'https://www.omdbapi.com/?apikey=' + omdbAPIKey + '&t=' + sMovie + '&type=movie&tomatoes=true&r=JSON';
 
 
-try {	fetch(sUrl)
+try {
+  fetch(sUrl)
   .then(function (response) {
     if (!response.ok) { //If the response status is not within the 200s range, then halt the execution of the fetch request
       return;
     }
-    var result= response.json();
+    var result = response.json();
     console.log(result);
     return result;
-	}).then(function (oData){
+  }).then(function (oData) {
 
     console.log(oData.Actors);
     console.log(oData.Country);
@@ -104,8 +103,8 @@ try {	fetch(sUrl)
     console.log(oData.tomatoUserRating);
 
   })
-}catch (error) {
-	console.error(error);
+} catch (error) {
+  console.error(error);
 }
 
 /*Streaming Availability fetch request for movie title*/
@@ -120,46 +119,47 @@ var selectedTitle = "Citizen Kane";
 
 const titleUrl = 'https://streaming-availability.p.rapidapi.com/search/title?title=' + selectedTitle + '&country=US&show_type=movie&output_language=en';;
 const options = {
-	method: 'GET',
-	headers: {
-		'X-RapidAPI-Key': XRapidAPIKey,
-		'X-RapidAPI-Host': XRapidAPIHost 
-	}
+  method: 'GET',
+  headers: {
+    'X-RapidAPI-Key': XRapidAPIKey,
+    'X-RapidAPI-Host': XRapidAPIHost
+  }
 };
 
 
-try {	fetch(titleUrl, options)
+try {
+  fetch(titleUrl, options)
   .then(function (response) {
     if (!response.ok) { //If the response status is not within the 200s range, then halt the execution of the fetch request
       return;
     }
-    var result= response.json();
+    var result = response.json();
     console.log(result);
     return result;
-	}).then(function (data){
+  }).then(function (data) {
 
-    if(!data){
+    if (!data) {
       return;
     }
-  
+
     console.log(data);
     console.log(data.result);
     console.log(data.result.length);
-    for(let i=0; i<data.result.length; i++){
+    for (let i = 0; i < data.result.length; i++) {
 
       console.log(data.result[i]);
 
       console.log(data.result[i].directors);
 
       console.log(data.result[i].genres); //It can be classified in more than one genre; this property is an array whose elements are objects with 2 properties .id(a number) and .name
-      
-      for(let j=0; j<data.result[i].genres.length; j++){//looping through the genres it is cathegorized in
+
+      for (let j = 0; j < data.result[i].genres.length; j++) {//looping through the genres it is cathegorized in
         console.log(data.result[i].genres[j].name);
         console.log(data.result[i].genres[j].id);
       }
       console.log(data.result[i].imdbId);
       console.log(data.result[i].originalTitle);
-      console.log(data.result[i].streamingInfo); 
+      console.log(data.result[i].streamingInfo);
       console.log(data.result[i].streamingInfo.us);
       console.log(data.result[i].streamingInfo.us.length);
       /* Relative "streamingInfo.us": This property is an array whose elements are objects with the following properties:
@@ -171,76 +171,67 @@ try {	fetch(titleUrl, options)
       service, 
       streamingType, 
       subtitles(array whose elements are objects with properties: "closedCaptions" (Boolean-valued) and "locale"(object with 'language' and 'region' properties)*/
-      for(let k=0; k<data.result[i].streamingInfo.us.length; k++){//looping through the streaming info
-      console.log(data.result[i].streamingInfo.us[k].audios);
-      console.log(data.result[i].streamingInfo.us[k].availableSince);
-      console.log(data.result[i].streamingInfo.us[k].link);
-      console.log(data.result[i].streamingInfo.us[k].price);
-      console.log(data.result[i].streamingInfo.us[k].quality);
-      console.log(data.result[i].streamingInfo.us[k].service);
-      console.log(data.result[i].streamingInfo.us[k].streamingType);
-      console.log(data.result[i].streamingInfo.us[k].subtitles);
+      for (let k = 0; k < data.result[i].streamingInfo.us.length; k++) {//looping through the streaming info
+        console.log(data.result[i].streamingInfo.us[k].audios);
+        console.log(data.result[i].streamingInfo.us[k].availableSince);
+        console.log(data.result[i].streamingInfo.us[k].link);
+        console.log(data.result[i].streamingInfo.us[k].price);
+        console.log(data.result[i].streamingInfo.us[k].quality);
+        console.log(data.result[i].streamingInfo.us[k].service);
+        console.log(data.result[i].streamingInfo.us[k].streamingType);
+        console.log(data.result[i].streamingInfo.us[k].subtitles);
       };
       console.log(data.result[i].title);
       console.log(data.result[i].tmdbId);
       console.log(data.result[i].type);
       console.log(data.result[i].year);
 
-        
+
     }
   })
-}catch (error) {
-	console.error(error);
+} catch (error) {
+  console.error(error);
 }
 
 /*Streaming Availability fetch request for all available genres*/
 
-const genreUrl ='https://streaming-availability.p.rapidapi.com/genres';
-try{
-fetch(genreUrl, options)
-.then(function (response) {
-  if (!response.ok) { //If the response status is not within the 200s range, then halt the execution of the fetch request
-    return;
-  }
+const genreUrl = 'https://streaming-availability.p.rapidapi.com/genres';
+try {
+  fetch(genreUrl, options)
+    .then(function (response) {
+      if (!response.ok) { //If the response status is not within the 200s range, then halt the execution of the fetch request
+        return;
+      }
+      return response.json();
+    }).then(function (data) {
+      if (!data) {
+        return;
+      }
+      console.log(data);
+      console.log(data.result);
 
-  var result =response.json();
-  console.log(result);
-  console.log(response);
-  return result;
-}).then(function (data){
-  if(!data){
-    return;
-  }
-  console.log(data);
-  console.log(data.result);
-
-})
+    })
 } catch (error) { //If something goes wrong, then do this to alert the user
-console.error(error);
+  console.error(error);
 }
 /*Streaming Availability fetch request for all available services*/
 
-const serviceUrl ='https://streaming-availability.p.rapidapi.com/services';
-try{
-fetch(serviceUrl, options)
-.then(function (response) {
-  if (!response.ok) { //If the response status is not within the 200s range, then halt the execution of the fetch request
-    return;
-  }
-
-  var result =response.json();
-  console.log(result);
-  console.log(response);
-  return result;
-}).then(function (data){
-  if(!data){
-    return;
-  }
-  console.log(data);
-  console.log(data.result);
-})
+const serviceUrl = 'https://streaming-availability.p.rapidapi.com/services';
+try {
+  fetch(serviceUrl, options)
+    .then(function (response) {
+      if (!response.ok) { //If the response status is not within the 200s range, then halt the execution of the fetch request
+        return;
+      }
+      return response.json();
+    }).then(function (data) {
+      if (!data) {
+        return;
+      }
+      console.log(data);
+    })
 } catch (error) { //If something goes wrong, then do this to alert the user
-console.error(error);
+  console.error(error);
 }
 
 // Get the modal
@@ -254,18 +245,18 @@ var span = document.getElementsByClassName("close")[0];
 
 // When the user clicks on the button, open the modal 
 //This solves the issue of opening the modal; however the button that appears on top the image when hovering over the card becomes superfluous
-for(let i=0; i<btnArray.length; i++){
-btnArray[i].onclick = function() {
-  modal.style.display = "block";
-}
+for (let i = 0; i < btnArray.length; i++) {
+  btnArray[i].onclick = function () {
+    modal.style.display = "block";
+  }
 }
 // When the user clicks on <span> (x), close the modal
-span.onclick = function() {
+span.onclick = function () {
   modal.style.display = "none";
 }
 
 // When the user clicks anywhere outside of the modal, close it
-window.onclick = function(event) {
+window.onclick = function (event) {
   if (event.target == modal) {
     modal.style.display = "none";
   }
