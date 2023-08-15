@@ -101,23 +101,9 @@ function fetchOmdbInfo(movieTitle) {
       console.log(omdbData);
 
       container.innerHTML += createCard(omdbData.Poster, omdbData.Genre, movieTitle, omdbData.Plot, omdbData.Rated, omdbData.Runtime, omdbData.imdbID); //Calling the createCard function in order to create another movie card and add it to the <div> with class "".container"
-      /*All of the data below could be retrieved if we wanted to*/
-
-      //console.log(oData.Actors);
-      //console.log(oData.Country);
-      //console.log(oData.Director);
-      //console.log(oData.Genre);
-      //console.log(oData.Language);
-      //console.log(oData.Metascore);
-      //console.log(oData.Rated);
-      //console.log(oData.Runtime);
-      //console.log(oData.Title);
-      //console.log(oData.Writer);
-      //console.log(oData.Year);
-      //console.log(oData.imdbID);
-      //console.log(oData.tomatoMeter);
-      //console.log(oData.tomatoUserRating);
-
+  
+    }).catch(function (err) {
+      console.log(err);
     });
 
 }
@@ -135,7 +121,7 @@ function createCard(imageSrc, tag, title, summary, rating, runtime, imdbID) {
         <span class="card-media-tag card-media-tag">${tag}</span>
       </div>
       <div class="card-body">
-        <button type="button" class="get-modal card-body-heading" data-card-id="${imdbID}">${title}</button>
+        <button type="button" class="get-modal card-body-heading" onclick = "getModal(event)" data-card-id="${imdbID}">${title}</button>
         <span><strong>${rating}</strong></span>
         <span>${runtime}</span>
         <p id="summary" class="text-sm font-normal text-gray-500 dark:text-gray-400">${summary}</p>
@@ -259,7 +245,7 @@ window.onclick = function (event) {
   }
 }
 
-function fetchStreamingAvailability(movieTitle, movieData) {
+function fetchStreamAvail(selectedTitle) {
 
   const XRapidAPIKey = '51eb24f287msh9f2cb4653c7af8fp11236fjsne4cdc84cdeab';
 
@@ -267,7 +253,7 @@ function fetchStreamingAvailability(movieTitle, movieData) {
 
 
 
-  const streamAvailURL = 'https://streaming-availability.p.rapidapi.com/search/title?title=' + movieTitle + '&country=us&show_type=movie&output_language=en';;
+  const streamAvailURL = 'https://streaming-availability.p.rapidapi.com/search/title?title=' + selectedTitle + '&country=us&show_type=movie&output_language=en';;
   const streamAvailOptions = {
     method: 'GET',
     headers: {
@@ -281,14 +267,10 @@ function fetchStreamingAvailability(movieTitle, movieData) {
     .then(function (response) {
       if (!response.ok) { //If the response status is not within the 200s range, then halt the execution of the fetch request
 
-        console.log(response.statusText);
-
-        return;
+        return Promise.reject(response.statusText);;
       }
 
-      console.log(response.json());
-
-      return;
+      return response.json();
 
     }).then(function (data) {
 
@@ -343,6 +325,8 @@ function fetchStreamingAvailability(movieTitle, movieData) {
       };
       modal.style.display = "block";
 
+    }).catch(function(err){
+      console.log(err);
     });
 
 }
