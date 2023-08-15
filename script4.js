@@ -45,15 +45,17 @@ genreList.addEventListener("click", function(event){
         return;
 
       }
-     
+      
       console.log(response.json());
+
+      return response;
     
     }).then(function (advMovieData){
     
-      console.log(advMovieData); //An object with the following properties: page, results, total_pages, total_results
-      console.log(advMovieData.results); //An array with 20 elements, each one of them representing a movie (about 20 movies per page)
+      //console.log(advMovieData); //An object with the following properties: page, results, total_pages, total_results
+      //console.log(advMovieData.results); //An array with 20 elements, each one of them representing a movie (about 20 movies per page)
       //console.log(data.results.length);//Outputs "20"
-    
+    if (advMovieData !== undefined){
       for(let i=0; i<advMovieData.results.length; i++){
     
         if(advMovieData.results[i].vote_average >= 7 && advMovieData[i].original_language =="en"){
@@ -65,7 +67,7 @@ genreList.addEventListener("click", function(event){
         
         fetchOmdbInfo(advMovieData.results[i].original_title);//For each movie from the selected genre, with a score of at least 8 and originally in english, we are going to gather data using OMDB in order to create a card for it.
         
-
+        }
         }
       }
     });
