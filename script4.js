@@ -1,4 +1,25 @@
-
+/*In this experiment I am trying to filter the results by genre (initially choosing "horror" id=80) so that only movies that are in english and with a score of at least 8 are shown. There are issues with pagination,
+so I decided to iterate through the pages by employing a loop*/
+//Declaring the function that will be called in order to display a card for each movie title
+// function createCard(imageSrc, tag, title, summary, rating, runtime, cardId) {
+//   return `
+//     <div class="card u-clearfix" data-favorite="false"> 
+//       <div class="card-media">
+//         <img src="${imageSrc}" alt="${title}-poster" class="card-media-img" />
+//         <div class="card-media-preview u-flex-center favorite-button" data-card-id="${cardId}">
+//           <!-- Add your favorite button icon here -->
+//         </div>
+//         <span class="card-media-tag card-media-tag-${tag.toLowerCase()}">${tag}</span>
+//       </div>
+//       <div class="card-body">
+//         <button type="button" class="get-modal card-body-heading" data-card-id="${cardId}">${title}</button>
+//         <span><strong>${rating}</strong></span>
+//         <span>${runtime}</span>
+//         <p id="summary" class="text-sm font-normal text-gray-500 dark:text-gray-400">${summary}</p>
+//       </div>
+//     </div>
+//   `;
+// }
 const container = document.querySelector(".container");
 
 var genreList = document.getElementById("genre-list");
@@ -26,13 +47,14 @@ genreList.addEventListener("click", function (event) {
     method: 'GET',
     headers: {
       'X-RapidAPI-Key': 'c474a02743mshb4a9aeef3843b0dp1c5eeajsn7330f2e8aae3',
+      //'X-RapidAPI-Key': 'aed62a6282msh245eac67e8ef1f5p1a61d3jsn48e680928113',
       'X-RapidAPI-Host': 'advanced-movie-search.p.rapidapi.com'
     }
   };
 
   var searchURL;
 
-  for (let k = 0; k < 10; k++) { //Iterating through the first 5 pages in order to find "horror" movies in english and with a vote average of at least 8.
+  for (let k = 0; k < 10; k++) { //Iterating through the first 10 pages in order to find "horror" movies in english and with a vote average of at least 8.
 
     searchURL = searchGenre + '&page=' + k;
 
@@ -187,8 +209,37 @@ window.onclick = function (event) {
   }
 }
 
+// Function to toggle the favorite status and update local storage
+function toggleFavorite(cardId) {
+  const favorites = JSON.parse(localStorage.getItem("favorites")) || [];
+  const index = favorites.indexOf(cardId);
+  if (index === -1) {
+    favorites.push(cardId);
+  } else {
+    favorites.splice(index, 1);
+  }
+  localStorage.setItem("favorites", JSON.stringify(favorites));
 
-function fetchStreamAvail(movieTitle) {
+  // Update the favorite button styling
+  const favoriteButton = document.querySelector(`[data-card-id="${cardId}"] card-media-preview`);
+  const isFavorite = favorites.includes(cardId);
+  if (isFavorite) {
+    favoriteButton.classList.add("favorite");
+  } else {
+    favoriteButton.classList.remove("favorite");
+  }
+}
+
+// Event listener for favorite button clicks
+container.addEventListener("click", function (event) {
+  const favoriteButton = event.target.closest(".favorite-button");
+  if (favoriteButton) {
+    const cardId = favoriteButton.getAttribute("data-card-id");
+    toggleFavorite(cardId);
+  }
+});
+
+function fetchStreamingAvailability(movieTitle, movieData) {
 
   const XRapidAPIKey = '51eb24f287msh9f2cb4653c7af8fp11236fjsne4cdc84cdeab';
 
@@ -245,16 +296,6 @@ function fetchStreamAvail(movieTitle) {
       movieExtInfo.setAttribute("target", "_blank");
       movieExtInfo.textContent = "Go to the IMDB for more info";
 
-      /*
-       console.log(data.result[0].genres); //It can be classified in more than one genre; this property is an array whose elements are objects with 2 properties .id(a number) and .name
-       
- 
-       for(let j=0; j<data.result[0].genres.length; j++){//Looping through the genres the movie  is cathegorized in and logging to the console
-        
-         console.log(data.result[0].genres[j].id);
-       }
-       */
-
       if (!movieStreamOpts) { //If there are no streaming options available, then the modal appears with a message telling so to the user.
 
         var noOptsEl = document.createElement("li");
@@ -298,86 +339,4 @@ function createStreamServBlock(movieStreamOpt) {
                        <span class="inline-flex items-center justify-center px-2 py-0.5 ml-3 text-xs font-medium text-gray-500 bg-gray-200 rounded dark:bg-gray-700 dark:text-gray-400">${movieStreamOpt[4]}</span>
                      </a>
                </li>`;
-}
-
-/* This are all the genres available, but the classification is really bad. Maybe we can add more to the dropdown menu.
-{
-  "genres": [
-    {
-      "id": 28,
-      "name": "Action"
-    },
-    {
-      "id": 12,
-      "name": "Adventure"
-    },
-    {
-      "id": 16,
-      "name": "Animation"
-    },
-    {
-      "id": 35,
-      "name": "Comedy"
-    },
-    {
-      "id": 80,
-      "name": "Crime"
-    },
-    {
-      "id": 99,
-      "name": "Documentary"
-    },
-    {
-      "id": 18,
-      "name": "Drama"
-    },
-    {
-      "id": 10751,
-      "name": "Family"
-    },
-    {
-      "id": 14,
-      "name": "Fantasy"
-    },
-    {
-      "id": 36,
-      "name": "History"
-    },
-    {
-      "id": 27,
-      "name": "Horror"
-    },
-    {
-      "id": 10402,
-      "name": "Music"
-    },
-    {
-      "id": 9648,
-      "name": "Mystery"
-    },
-    {
-      "id": 10749,
-      "name": "Romance"
-    },
-    {
-      "id": 878,
-      "name": "Science Fiction"
-    },
-    {
-      "id": 10770,
-      "name": "TV Movie"
-    },
-    {
-      "id": 53,
-      "name": "Thriller"
-    },
-    {
-      "id": 10752,
-      "name": "War"
-    },
-    {
-      "id": 37,
-      "name": "Western"
-    }
-  ]
-}*/
+};
