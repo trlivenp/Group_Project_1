@@ -206,7 +206,7 @@ const favoritesToggle = document.querySelector('.favorites-toggle');
 const favoritesCheckbox = favoritesToggle.querySelector('.favorites-toggle-checkbox');
 
 favoritesCheckbox.addEventListener('change', () => {
-
+ 
   container.innerHTML = "";
 
   const isChecked = favoritesCheckbox.checked;
@@ -225,7 +225,11 @@ favoritesCheckbox.addEventListener('change', () => {
     streamOptsList.appendChild(noOptsEl);
     modal.style.display = "block";
 
-  } else if (favorites.length > 0 && isChecked) {
+  } else if (favorites.length=== 0 && !isChecked) {
+
+    streamOptsList.innerHTML ="";
+
+  }else if (favorites.length>0 && isChecked){
 
     generateFavoriteCards();
 
