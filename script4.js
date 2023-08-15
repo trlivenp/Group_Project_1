@@ -54,7 +54,7 @@ genreList.addEventListener("click", function (event) {
 
   var searchURL;
 
-  for (let k = 0; k < 10; k++) { //Iterating through the first 10 pages in order to find "horror" movies in english and with a vote average of at least 8.
+  for (let k = 1; k < 2; k++) { //Iterating through the first 10 pages in order to find "horror" movies in english and with a vote average of at least 8.
 
     searchURL = searchGenre + '&page=' + k;
 
@@ -101,7 +101,7 @@ genreList.addEventListener("click", function (event) {
 
 function fetchOmdbInfo(movieTitle) {
 
-  const omdbAPIKey = "55778eb2"; //API key to OMDB
+  const omdbAPIKey = "c049ffc"; //API key to OMDB
 
   var omdbURL, omdbData;
 
