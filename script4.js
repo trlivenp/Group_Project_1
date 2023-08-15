@@ -1,25 +1,3 @@
-/*In this experiment I am trying to filter the results by genre (initially choosing "horror" id=80) so that only movies that are in english and with a score of at least 8 are shown. There are issues with pagination,
-so I decided to iterate through the pages by employing a loop*/
-//Declaring the function that will be called in order to display a card for each movie title
-// function createCard(imageSrc, tag, title, summary, rating, runtime, cardId) {
-//   return `
-//     <div class="card u-clearfix" data-favorite="false"> 
-//       <div class="card-media">
-//         <img src="${imageSrc}" alt="${title}-poster" class="card-media-img" />
-//         <div class="card-media-preview u-flex-center favorite-button" data-card-id="${cardId}">
-//           <!-- Add your favorite button icon here -->
-//         </div>
-//         <span class="card-media-tag card-media-tag-${tag.toLowerCase()}">${tag}</span>
-//       </div>
-//       <div class="card-body">
-//         <button type="button" class="get-modal card-body-heading" data-card-id="${cardId}">${title}</button>
-//         <span><strong>${rating}</strong></span>
-//         <span>${runtime}</span>
-//         <p id="summary" class="text-sm font-normal text-gray-500 dark:text-gray-400">${summary}</p>
-//       </div>
-//     </div>
-//   `;
-// }
 const container = document.querySelector(".container");
 
 var genreList = document.getElementById("genre-list");
@@ -47,7 +25,6 @@ genreList.addEventListener("click", function (event) {
     method: 'GET',
     headers: {
       'X-RapidAPI-Key': 'c474a02743mshb4a9aeef3843b0dp1c5eeajsn7330f2e8aae3',
-      //'X-RapidAPI-Key': 'aed62a6282msh245eac67e8ef1f5p1a61d3jsn48e680928113',
       'X-RapidAPI-Host': 'advanced-movie-search.p.rapidapi.com'
     }
   };
@@ -123,7 +100,7 @@ function fetchOmdbInfo(movieTitle) {
 
       console.log(omdbData);
 
-      container.innerHTML += createCard(omdbData.Poster, omdbData.Genre, movieTitle, omdbData.Plot, omdbData.Rated, omdbData.Runtime); //Calling the createCard function in order to create another movie card and add it to the <div> with class "".container"
+      container.innerHTML += createCard(omdbData.Poster, omdbData.Genre, movieTitle, omdbData.Plot, omdbData.Rated, omdbData.Runtime, omdbData.imdbID); //Calling the createCard function in order to create another movie card and add it to the <div> with class "".container"
       /*All of the data below could be retrieved if we wanted to*/
 
       //console.log(oData.Actors);
@@ -147,27 +124,100 @@ function fetchOmdbInfo(movieTitle) {
 
 //Declaring the function that will be called by the fetchOmdbInfo function in order to create and display a card for each movie title from the chosen genre
 
-function createCard(imageSrc, tag, title, summary, rating, runtime) {
+function createCard(imageSrc, tag, title, summary, rating, runtime, imdbID) {
   return `
-    <div class="card u-clearfix">
+    <div class="card u-clearfix" data-favorite="false" data-card-id="${imdbID}"> 
       <div class="card-media">
         <img src="${imageSrc}" alt="${title}-poster" class="card-media-img" />
-        <div class="card-media-preview u-flex-center">
-          <svg fill="#ffffff" height="18" viewBox="0 0 24 24" width="18" xmlns="http://www.w3.org/2000/svg">
-            <path d="M8 5v14l11-7z"/>
-            <path d="M0 0h24v24H0z" fill="none"/>
-          </svg>
+        <div class="card-media-preview u-flex-center favorite-button" data-card-id="${imdbID}">
+        </svg>
         </div>
-        <span class="card-media-tag card-media-tag-${tag}">${tag}</span>
+        <span class="card-media-tag card-media-tag">${tag}</span>
       </div>
       <div class="card-body">
-        <button type="btn" class="get-modal card-body-heading" onclick = "getModal(event)" >${title}</button>
-        <span><strong> ${rating}</strong> </span>
-        <span> ${runtime} </span>
-        <p id="summary" class="text-sm font-normal text-gray-500 dark:text-gray-400">${summary}</p> 
+        <button type="button" class="get-modal card-body-heading" data-card-id="${imdbID}">${title}</button>
+        <span><strong>${rating}</strong></span>
+        <span>${runtime}</span>
+        <p id="summary" class="text-sm font-normal text-gray-500 dark:text-gray-400">${summary}</p>
+      </div>
     </div>
   `;
 }
+
+
+
+// Function to toggle a movie as a favorite
+function toggleFavorite(imdbID) {
+  console.log('Toggle Favorite:', imdbID);
+
+  let favorites = JSON.parse(localStorage.getItem('favorites')) || [];
+
+  if (favorites.includes(imdbID)) {
+    favorites = favorites.filter(id => id !== imdbID);
+  } else {
+    favorites.push(imdbID);
+  };
+
+  localStorage.setItem('favorites', JSON.stringify(favorites));
+}
+
+
+// Function to generate favorite movie cards
+function generateFavoriteCards() {
+  const favorites = JSON.parse(localStorage.getItem('favorites')) || [];
+
+  console.log('Generate Favorite Cards:', favorites);
+
+  // Loop through the favorites and create movie cards
+  favorites.forEach(imdbID => {
+    // Fetch movie details using IMDb ID and create the card
+    fetchOmdbInfoById(imdbID);
+  });
+};
+
+container.addEventListener('click', function (event) {
+  // Check if the clicked element has the class "favorite-button"
+  if (event.target.classList.contains('favorite-button')) {
+    // Handle favorite button click heres
+    const imdbID = event.target.getAttribute('data-card-id');
+    toggleFavorite(imdbID);
+
+    // Update UI to reflect the change in favorite status
+    const isFavorite = JSON.parse(localStorage.getItem('favorites')).includes(imdbID);
+    const card = event.target.closest('.card');
+    card.dataset.favorite = isFavorite;
+
+    // Toggle the 'favorite' class for the button
+    event.target.classList.toggle('favorite', isFavorite);
+  }
+});
+
+const favoritesToggle = document.querySelector('.favorites-toggle');
+const favoritesCheckbox = favoritesToggle.querySelector('.favorites-toggle-checkbox');
+const favoritesSwitch = favoritesToggle.querySelector('.favorites-toggle-switch');
+
+// Function to update the display of movies based on favorites toggle
+function updateMovieDisplay() {
+  const allCards = document.querySelectorAll('.card');
+  const isFavoritesOnly = favoritesCheckbox.checked;
+
+  allCards.forEach(card => {
+    if (isFavoritesOnly && card.dataset.favorite !== 'true') {
+      card.style.display = 'none';
+    } else {
+      card.style.display = 'block';
+    }
+  });
+}
+
+// Event listener for favorites toggle change
+favoritesCheckbox.addEventListener('change', () => {
+  updateMovieDisplay();
+});
+
+// Initially update movie display based on current favorites toggle state
+updateMovieDisplay();
+
 var selectedTitle; //The user will select the title by clicking on the corresponding movie card.
 //This arrays will be used to temporarily store the data fetched from Streaming Availability, especially while looping through the raw data.
 var movieStreamOpts = [];
@@ -208,36 +258,6 @@ window.onclick = function (event) {
     modal.style.display = "none";
   }
 }
-
-// Function to toggle the favorite status and update local storage
-function toggleFavorite(cardId) {
-  const favorites = JSON.parse(localStorage.getItem("favorites")) || [];
-  const index = favorites.indexOf(cardId);
-  if (index === -1) {
-    favorites.push(cardId);
-  } else {
-    favorites.splice(index, 1);
-  }
-  localStorage.setItem("favorites", JSON.stringify(favorites));
-
-  // Update the favorite button styling
-  const favoriteButton = document.querySelector(`[data-card-id="${cardId}"] card-media-preview`);
-  const isFavorite = favorites.includes(cardId);
-  if (isFavorite) {
-    favoriteButton.classList.add("favorite");
-  } else {
-    favoriteButton.classList.remove("favorite");
-  }
-}
-
-// Event listener for favorite button clicks
-container.addEventListener("click", function (event) {
-  const favoriteButton = event.target.closest(".favorite-button");
-  if (favoriteButton) {
-    const cardId = favoriteButton.getAttribute("data-card-id");
-    toggleFavorite(cardId);
-  }
-});
 
 function fetchStreamingAvailability(movieTitle, movieData) {
 
