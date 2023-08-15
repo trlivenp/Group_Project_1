@@ -1,7 +1,7 @@
 # What to Watch?
 ## Description
 
-When creating this project, we set out to create a website that allowed visitors to discovery new movies in a variety of genres, and where to watch them. By completing this assignment, we gained a better understanding of branch management on GitHub, as well as how to use Tailwind.
+When creating this project, we set out to create a website that allowed visitors to discover new movies in a variety of genres, and where to watch them. By completing this assignment, we gained a better understanding of branch management on GitHub, as well as how to use Tailwind.
 
 ## Installation
 
@@ -9,19 +9,23 @@ N/A
 
 ## Usage
 
-You can access the website here: [INSERT LINK HERE]
+You can access the website here: https://trlivenp.github.io/What_to_Watch/
 
 When you open this page, you will be presented with a screen that looks like this:
 
 ![The site in its base state upon opening](./assets/images/Base_Page.png)
 
-From here, you can use the dropdown menu to select a movie genre of your choosing. This will present the user with a the movie list that only features movies that meet that classification. The dropdown menu is demonstrated below:
+From here, you can use the dropdown menu to select a movie genre of your choosing. This will present the user with a movie list that only features movies that meet that classification. The dropdown menu is demonstrated below:
 
 ![The site's genre dropdown menu in action](./assets/images/Drop_Down.png)
 
 Another feature of the site is its use of modals. These modals will show you the streaming services where you can watch your movie of choice. Here is an example of one of these modals:
 
-![An example of a modal being opened on the site](./assets/images/)
+![An example of a modal being opened on the site](./assets/images/Modal_In_Action.png)
+
+This modals also include a link to the movie's IMDB page, so the user can find out even more information about the film they selected. Here is the IMDB associated with the movie you just saw:
+
+![Example IMDB page based on the movie from previous modal](./assets/images/IMDB_Link.png)
 
 Lastly, the site also features a "My Favorites" toggle bar, that allows you to only display the movies that you deem as your favorite. This is done by simply clicking on the Favorites button. You can see both the button and the "My Favorites" toggle bar in action demonstrated here:
 
@@ -31,7 +35,7 @@ Here is the button turned off (it's base state)
 
 Here is the button turned on (after being clicked)
 
-![Favorites Button after being activated](./assets/images/Favorites_Button_Off.png)
+![Favorites Button after being activated](./assets/images/Favorites_Button_On.png)
 
 And here is how the page looks after the "My Favorites" slider is activated.
 
@@ -77,3 +81,5 @@ Drop Down Menu
 Modals
 
 APIS
+
+External Links
