@@ -49,18 +49,10 @@ genreList.addEventListener("click", function (event) {
 
       }).then(function (advMovieData) {
 
-        //console.log(advMovieData); //An object with the following properties: page, results, total_pages, total_results
-        //console.log(advMovieData.results); //An array with 20 elements, each one of them representing a movie (about 20 movies per page)
-        //console.log(data.results.length);//Outputs "20"
         if (advMovieData !== undefined) {
           for (let i = 0; i < advMovieData.results.length; i++) {
 
             if (advMovieData.results[i].vote_average >= 7 && advMovieData.results[i].original_language == "en") {
-              //console.log(data.results[i].original_title);
-
-              //data.results[i].original_title; //The variable temporarily stores the title of a movie from the chosen genre.
-
-              //console.log(data.results[i].id); //Apparently, it is not the imdb.com id
 
               fetchOmdbInfo(advMovieData.results[i].original_title);//For each movie from the selected genre, with a score of at least 8 and originally in english, we are going to gather data using OMDB in order to create a card for it.
 
@@ -74,7 +66,6 @@ genreList.addEventListener("click", function (event) {
 })
 
 //Function to handle OMDB fetch request by movie title.
-
 
 function fetchOmdbInfo(movieTitle) {
 
@@ -101,7 +92,7 @@ function fetchOmdbInfo(movieTitle) {
       console.log(omdbData);
 
       container.innerHTML += createCard(omdbData.Poster, omdbData.Genre, movieTitle, omdbData.Plot, omdbData.Rated, omdbData.Runtime, omdbData.imdbID); //Calling the createCard function in order to create another movie card and add it to the <div> with class "".container"
-  
+
     }).catch(function (err) {
       console.log(err);
     });
@@ -130,27 +121,27 @@ function createCard(imageSrc, tag, title, summary, rating, runtime, imdbID) {
   `;
 }
 
+var favorites = JSON.parse(localStorage.getItem('favorites')) || [];
 
-
+console.log(favorites);
 // Function to toggle a movie as a favorite
 function toggleFavorite(imdbID) {
+
   console.log('Toggle Favorite:', imdbID);
 
-  let favorites = JSON.parse(localStorage.getItem('favorites')) || [];
-
   if (favorites.includes(imdbID)) {
-    favorites = favorites.filter(id => id !== imdbID);
+    favorites = favorites.filter(id => id !== imdbID); //If it was already on the favorite list and you click again on it, then it stops being in that list (it is removed)
   } else {
     favorites.push(imdbID);
   };
 
   localStorage.setItem('favorites', JSON.stringify(favorites));
+  console.log(localStorage.favorites);
 }
 
 
 // Function to generate favorite movie cards
 function generateFavoriteCards() {
-  const favorites = JSON.parse(localStorage.getItem('favorites')) || [];
 
   console.log('Generate Favorite Cards:', favorites);
 
@@ -161,6 +152,39 @@ function generateFavoriteCards() {
   });
 };
 
+function fetchOmdbInfoById(imdbID) {
+
+  const omdbAPIKey = "c049ffc"; //API key to OMDB
+
+  var omdbURL, omdbData;
+
+  omdbURL = 'https://www.omdbapi.com/?apikey=' + omdbAPIKey + '&i=' + imdbID + '&type=movie&r=JSON';
+
+
+  fetch(omdbURL)
+    .then(function (response) {
+      if (!response.ok) { //If the response status is not within the 200s range, then halt the execution of the fetch request
+
+        console.log(response.statusText)
+
+        return Promise.reject(response.statusText);
+      }
+
+      return response.json();
+    })
+    .then(function (omdbData) {
+
+      console.log(omdbData);
+
+      container.innerHTML += createCard(omdbData.Poster, omdbData.Genre, omdbData.Title, omdbData.Plot, omdbData.Rated, omdbData.Runtime, omdbData.imdbID); //Calling the createCard function in order to create another movie card and add it to the <div> with class "".container"
+
+    }).catch(function (err) {
+      console.log(err);
+    });
+
+}
+
+
 container.addEventListener('click', function (event) {
   // Check if the clicked element has the class "favorite-button"
   if (event.target.classList.contains('favorite-button')) {
@@ -169,7 +193,7 @@ container.addEventListener('click', function (event) {
     toggleFavorite(imdbID);
 
     // Update UI to reflect the change in favorite status
-    const isFavorite = JSON.parse(localStorage.getItem('favorites')).includes(imdbID);
+    const isFavorite = favorites.includes(imdbID);
     const card = event.target.closest('.card');
     card.dataset.favorite = isFavorite;
 
@@ -180,29 +204,37 @@ container.addEventListener('click', function (event) {
 
 const favoritesToggle = document.querySelector('.favorites-toggle');
 const favoritesCheckbox = favoritesToggle.querySelector('.favorites-toggle-checkbox');
-const favoritesSwitch = favoritesToggle.querySelector('.favorites-toggle-switch');
 
-// Function to update the display of movies based on favorites toggle
-function updateMovieDisplay() {
-  const allCards = document.querySelectorAll('.card');
-  const isFavoritesOnly = favoritesCheckbox.checked;
-
-  allCards.forEach(card => {
-    if (isFavoritesOnly && card.dataset.favorite !== 'true') {
-      card.style.display = 'none';
-    } else {
-      card.style.display = 'block';
-    }
-  });
-}
-
-// Event listener for favorites toggle change
 favoritesCheckbox.addEventListener('change', () => {
-  updateMovieDisplay();
-});
 
-// Initially update movie display based on current favorites toggle state
-updateMovieDisplay();
+  container.innerHTML = "";
+
+  const isChecked = favoritesCheckbox.checked;
+
+  if (favorites.length === 0 && isChecked) {
+
+    movieInfo = document.getElementById("movie-title");
+    movieInfo.textContent = "Sorry!";
+
+    var noOptsEl = document.createElement("li");
+    var noOptsPar = document.createElement("p");
+    noOptsEl.appendChild(noOptsPar);
+    noOptsPar.textContent = "No favorites have been added yet. Please, select a genre from the dropdown menu and click on the small circle that appears on hover on any movie card wish. "
+                            + " When the circle turns red, then the title is added to the 'My Favorites' list. If you choose so,click again to turn the circle gray and unselect the movie.";
+
+    streamOptsList.appendChild(noOptsEl);
+    modal.style.display = "block";
+
+  } else if (favorites.length > 0 && isChecked) {
+
+    generateFavoriteCards();
+
+  } else {
+
+    return;
+
+  }
+});
 
 var selectedTitle; //The user will select the title by clicking on the corresponding movie card.
 //This arrays will be used to temporarily store the data fetched from Streaming Availability, especially while looping through the raw data.
@@ -226,7 +258,6 @@ so that the streaming options available (if any) are retrieved. At the end of th
 will be shown.*/
 
 function getModal(event) {
-  console.log("hello");
   selectedTitle = event.target.innerHTML;
   console.log(selectedTitle);
   streamOptsList.innerHTML = "";
@@ -286,8 +317,6 @@ function fetchStreamAvail(selectedTitle) {
 
       movieStreamOpts = data.result[0].streamingInfo.us;// This array will store the different streaming options available in the US for the given title
 
-      console.log(movieData);
-
       movieData = [data.result[0].title, data.result[0].year, data.result[0].imdbId, data.result[0].directors];
 
       movieInfo = document.getElementById("movie-title");
@@ -325,7 +354,7 @@ function fetchStreamAvail(selectedTitle) {
       };
       modal.style.display = "block";
 
-    }).catch(function(err){
+    }).catch(function (err) {
       console.log(err);
     });
 
