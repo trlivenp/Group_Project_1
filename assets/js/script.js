@@ -1,263 +1,378 @@
-/*MoviesDatabase fetch request*/
+const container = document.querySelector(".container");
 
-const moviesDatabaseUrl = 'https://moviesdatabase.p.rapidapi.com/titles';//The endpoint for the moviesdatabase API
-var topRated = "https://moviesdatabase.p.rapidapi.com/titles?list=top_rated_250";
-var the_Result;
-const MDoptions = { //Second argument of the fetch request
-  method: 'GET',
-  headers: {
-    'X-RapidAPI-Key': 'af06b5a5d2msh06f994de0bb7900p193487jsne9a0d8d839a9',
-    'X-RapidAPI-Host': 'moviesdatabase.p.rapidapi.com'
+var genreList = document.getElementById("genre-list");
+
+var selectedGenre;
+
+var advMovieSearchEndpoint = 'https://advanced-movie-search.p.rapidapi.com/discover/movie/?with_genres=';
+
+/*By using event-delegation, when a genre from the dropdown menu is selected, a fetch request will be sent to Advanced Movie Search API 
+in order to  find titles of high-rated (score == 7 or higher) english language movies that belong to the chosen genre*/
+
+genreList.addEventListener("click", function (event) {
+
+  container.innerHTML = "";
+
+  var element = event.target;
+
+  var genreListItem = element.parentElement;
+  selectedGenre = genreListItem.className;
+
+
+  searchGenre = advMovieSearchEndpoint + selectedGenre;
+
+  const advMovieSearchOptions = {
+    method: 'GET',
+    headers: {
+      'X-RapidAPI-Key': 'c474a02743mshb4a9aeef3843b0dp1c5eeajsn7330f2e8aae3',
+      'X-RapidAPI-Host': 'advanced-movie-search.p.rapidapi.com'
+    }
+  };
+
+  var searchURL;
+
+  for (let k = 1; k < 2; k++) { //Iterating through the first 10 pages in order to find "horror" movies in english and with a vote average of at least 8.
+
+    searchURL = searchGenre + '&page=' + k;
+
+    fetch(searchURL, advMovieSearchOptions)
+      .then(function (response) {
+        if (!response.ok) { //If the response status is not within the 200s range, then halt the execution of the fetch request
+
+          console.log(response.statusText);
+
+          return Promise.reject(response.statusText);
+
+        }
+
+        return response.json();
+
+      }).then(function (advMovieData) {
+
+        if (advMovieData !== undefined) {
+          for (let i = 0; i < advMovieData.results.length; i++) {
+
+            if (advMovieData.results[i].vote_average >= 7 && advMovieData.results[i].original_language == "en") {
+
+              fetchOmdbInfo(advMovieData.results[i].original_title);//For each movie from the selected genre, with a score of at least 8 and originally in english, we are going to gather data using OMDB in order to create a card for it.
+
+            }
+          }
+        }
+      }).catch(function (err) {
+        console.log(err);
+      });
   }
-};
-try {  //Try the piece of code below
-  fetch(topRated, MDoptions)
+})
+
+//Function to handle OMDB fetch request by movie title.
+
+function fetchOmdbInfo(movieTitle) {
+
+  const omdbAPIKey = "c049ffc"; //API key to OMDB
+
+  var omdbURL, omdbData;
+
+  omdbURL = 'https://www.omdbapi.com/?apikey=' + omdbAPIKey + '&t=' + movieTitle + '&type=movie&r=JSON';
+
+
+  fetch(omdbURL)
     .then(function (response) {
       if (!response.ok) { //If the response status is not within the 200s range, then halt the execution of the fetch request
-        return;
+
+        console.log(response.statusText)
+
+        return Promise.reject(response.statusText);
       }
+
       return response.json();
-    }).then(function (data) {
-      if (!data) {
-        return;
-      }
-      console.log(data);
-      // console.log(data.entries);
-      // console.log(data.next);
-      // console.log(data.page);
-      // console.log(data.results);
     })
-} catch (error) { //If something goes wrong, then do this to alert the user
-  console.error(error);
+    .then(function (omdbData) {
+
+      console.log(omdbData);
+
+      container.innerHTML += createCard(omdbData.Poster, omdbData.Genre, movieTitle, omdbData.Plot, omdbData.Rated, omdbData.Runtime, omdbData.imdbID); //Calling the createCard function in order to create another movie card and add it to the <div> with class "".container"
+
+    }).catch(function (err) {
+      console.log(err);
+    });
+
 }
-//Declaring the function that will be called in order to display a card for each movie title
-function createCard(imageSrc, tag, title) {
+
+//Declaring the function that will be called by the fetchOmdbInfo function in order to create and display a card for each movie title from the chosen genre
+
+function createCard(imageSrc, tag, title, summary, rating, runtime, imdbID) {
   return `
-    <div class="card u-clearfix">
+    <div class="card u-clearfix" data-favorite="false" data-card-id="${imdbID}"> 
       <div class="card-media">
         <img src="${imageSrc}" alt="${title}-poster" class="card-media-img" />
-        <div class="card-media-preview u-flex-center">
-          <svg fill="#ffffff" height="18" viewBox="0 0 24 24" width="18" xmlns="http://www.w3.org/2000/svg">
-            <path d="M8 5v14l11-7z"/>
-            <path d="M0 0h24v24H0z" fill="none"/>
-          </svg>
+        <div class="card-media-preview u-flex-center favorite-button" data-card-id="${imdbID}">
         </div>
-        <span class="card-media-tag card-media-tag-${tag.toLowerCase()}">${tag}</span>
+        <span class="card-media-tag card-media-tag">${tag}</span>
       </div>
       <div class="card-body">
-        <button type ="button" class="get-modal card-body-heading">${title}</button>
-        <!-- ... Other card body elements ... -->
+        <button type="button" class="get-modal card-body-heading" onclick = "getModal(event)" data-card-id="${imdbID}">${title}</button>
+        <span><strong>${rating}</strong></span>
+        <span>${runtime}</span>
+        <p id="summary" class="text-sm font-normal text-gray-500 dark:text-gray-400">${summary}</p>
       </div>
     </div>
   `;
 }
 
-const cardsData = [ //An array whose elements are movie-data objects whose properties we have to gather from the response
-  { imageSrc: "https://s18.postimg.cc/v0mympf7t/lmf1.jpg", tag: "Action", title: "Batman" },
-  { imageSrc: "https://s12.postimg.cc/t0h9q7999/lmf0.jpg", tag: "Western", title: "Lone Ranger" },
-  { imageSrc: "https://s13.postimg.cc/h8spyr37b/lmf2.jpg", tag: "Action", title: "Superman" },
-  // ... Add more cards data here ...
-];
+var favorites = JSON.parse(localStorage.getItem('favorites')) || [];
 
-const container = document.querySelector(".container");
-//Iterates through the movie-data array; for each "data" object, the createCard function is called and the result is appended to the conatiner as innerHTML
-cardsData.forEach(data => {
-  container.innerHTML += createCard(data.imageSrc, data.tag, data.title);
-});
+console.log(favorites);
+// Function to toggle a movie as a favorite
+function toggleFavorite(imdbID) {
 
-/*OMDB fetch request: by movie title*/
+  console.log('Toggle Favorite:', imdbID);
 
-const omdbAPIKey = "55778eb2"; //API key to OMDB
+  if (favorites.includes(imdbID)) {
+    favorites = favorites.filter(id => id !== imdbID); //If it was already on the favorite list and you click again on it, then it stops being in that list (it is removed)
+  } else {
+    favorites.push(imdbID);
+  };
 
-var sUrl, sMovie, oData;
-
-sMovie = "Citizen Kane";
-
-sUrl = 'https://www.omdbapi.com/?apikey=' + omdbAPIKey + '&t=' + sMovie + '&type=movie&tomatoes=true&r=JSON';
-
-
-try {
-  fetch(sUrl)
-  .then(function (response) {
-    if (!response.ok) { //If the response status is not within the 200s range, then halt the execution of the fetch request
-      return;
-    }
-    var result = response.json();
-    console.log(result);
-    return result;
-  }).then(function (oData) {
-
-    console.log(oData.Actors);
-    console.log(oData.Country);
-    console.log(oData.Director);
-    console.log(oData.Genre);
-    console.log(oData.Language);
-    console.log(oData.Metascore);
-    console.log(oData.Rated);
-    console.log(oData.Runtime);
-    console.log(oData.Title);
-    console.log(oData.Writer);
-    console.log(oData.Year);
-    console.log(oData.imdbID);
-    console.log(oData.tomatoMeter);
-    console.log(oData.tomatoUserRating);
-
-  })
-} catch (error) {
-  console.error(error);
+  localStorage.setItem('favorites', JSON.stringify(favorites));
+  console.log(localStorage.favorites);
 }
 
-/*Streaming Availability fetch request for movie title*/
 
-const rapidAPIApp = "default-application_8093471";
+// Function to generate favorite movie cards
+function generateFavoriteCards() {
 
-const XRapidAPIKey = 'aed62a6282msh245eac67e8ef1f5p1a61d3jsn48e680928113';
+  console.log('Generate Favorite Cards:', favorites);
 
-const XRapidAPIHost = "streaming-availability.p.rapidapi.com";
-
-var selectedTitle = "Citizen Kane";
-
-const titleUrl = 'https://streaming-availability.p.rapidapi.com/search/title?title=' + selectedTitle + '&country=US&show_type=movie&output_language=en';;
-const options = {
-  method: 'GET',
-  headers: {
-    'X-RapidAPI-Key': XRapidAPIKey,
-    'X-RapidAPI-Host': XRapidAPIHost
-  }
+  // Loop through the favorites and create movie cards
+  favorites.forEach(imdbID => {
+    // Fetch movie details using IMDb ID and create the card
+    fetchOmdbInfoById(imdbID);
+  });
 };
 
+function fetchOmdbInfoById(imdbID) {
 
-try {
-  fetch(titleUrl, options)
-  .then(function (response) {
-    if (!response.ok) { //If the response status is not within the 200s range, then halt the execution of the fetch request
-      return;
-    }
-    var result = response.json();
-    console.log(result);
-    return result;
-  }).then(function (data) {
+  const omdbAPIKey = "c049ffc"; //API key to OMDB
 
-    if (!data) {
-      return;
-    }
+  var omdbURL, omdbData;
 
-    console.log(data);
-    console.log(data.result);
-    console.log(data.result.length);
-    for (let i = 0; i < data.result.length; i++) {
-
-      console.log(data.result[i]);
-
-      console.log(data.result[i].directors);
-
-      console.log(data.result[i].genres); //It can be classified in more than one genre; this property is an array whose elements are objects with 2 properties .id(a number) and .name
-
-      for (let j = 0; j < data.result[i].genres.length; j++) {//looping through the genres it is cathegorized in
-        console.log(data.result[i].genres[j].name);
-        console.log(data.result[i].genres[j].id);
-      }
-      console.log(data.result[i].imdbId);
-      console.log(data.result[i].originalTitle);
-      console.log(data.result[i].streamingInfo);
-      console.log(data.result[i].streamingInfo.us);
-      console.log(data.result[i].streamingInfo.us.length);
-      /* Relative "streamingInfo.us": This property is an array whose elements are objects with the following properties:
-      audios(array whose elements are objects with properties "language" and "region"), 
-      availableSince(Unix timestamp),
-      link (Hypertext link to find it in whatever service it is available), 
-      price(object: "amount", "currency", "formatted"), 
-      quality(Values include: 'sd', 'hd', 'uhd', etc.), 
-      service, 
-      streamingType, 
-      subtitles(array whose elements are objects with properties: "closedCaptions" (Boolean-valued) and "locale"(object with 'language' and 'region' properties)*/
-      for (let k = 0; k < data.result[i].streamingInfo.us.length; k++) {//looping through the streaming info
-        console.log(data.result[i].streamingInfo.us[k].audios);
-        console.log(data.result[i].streamingInfo.us[k].availableSince);
-        console.log(data.result[i].streamingInfo.us[k].link);
-        console.log(data.result[i].streamingInfo.us[k].price);
-        console.log(data.result[i].streamingInfo.us[k].quality);
-        console.log(data.result[i].streamingInfo.us[k].service);
-        console.log(data.result[i].streamingInfo.us[k].streamingType);
-        console.log(data.result[i].streamingInfo.us[k].subtitles);
-      };
-      console.log(data.result[i].title);
-      console.log(data.result[i].tmdbId);
-      console.log(data.result[i].type);
-      console.log(data.result[i].year);
+  omdbURL = 'https://www.omdbapi.com/?apikey=' + omdbAPIKey + '&i=' + imdbID + '&type=movie&r=JSON';
 
 
-    }
-  })
-} catch (error) {
-  console.error(error);
-}
-
-/*Streaming Availability fetch request for all available genres*/
-
-const genreUrl = 'https://streaming-availability.p.rapidapi.com/genres';
-try {
-  fetch(genreUrl, options)
+  fetch(omdbURL)
     .then(function (response) {
       if (!response.ok) { //If the response status is not within the 200s range, then halt the execution of the fetch request
-        return;
-      }
-      return response.json();
-    }).then(function (data) {
-      if (!data) {
-        return;
-      }
-      console.log(data);
-      console.log(data.result);
 
-    })
-} catch (error) { //If something goes wrong, then do this to alert the user
-  console.error(error);
-}
-/*Streaming Availability fetch request for all available services*/
+        console.log(response.statusText)
 
-const serviceUrl = 'https://streaming-availability.p.rapidapi.com/services';
-try {
-  fetch(serviceUrl, options)
-    .then(function (response) {
-      if (!response.ok) { //If the response status is not within the 200s range, then halt the execution of the fetch request
-        return;
+        return Promise.reject(response.statusText);
       }
+
       return response.json();
-    }).then(function (data) {
-      if (!data) {
-        return;
-      }
-      console.log(data);
     })
-} catch (error) { //If something goes wrong, then do this to alert the user
-  console.error(error);
+    .then(function (omdbData) {
+
+      console.log(omdbData);
+
+      container.innerHTML += createCard(omdbData.Poster, omdbData.Genre, omdbData.Title, omdbData.Plot, omdbData.Rated, omdbData.Runtime, omdbData.imdbID); //Calling the createCard function in order to create another movie card and add it to the <div> with class "".container"
+
+    }).catch(function (err) {
+      console.log(err);
+    });
+
 }
+
+
+container.addEventListener('click', function (event) {
+  // Check if the clicked element has the class "favorite-button"
+  if (event.target.classList.contains('favorite-button')) {
+    // Handle favorite button click heres
+    const imdbID = event.target.getAttribute('data-card-id');
+    toggleFavorite(imdbID);
+
+    // Update UI to reflect the change in favorite status
+    const isFavorite = favorites.includes(imdbID);
+    const card = event.target.closest('.card');
+    card.dataset.favorite = isFavorite;
+
+    // Toggle the 'favorite' class for the button
+    event.target.classList.toggle('favorite', isFavorite);
+  }
+});
+
+const favoritesToggle = document.querySelector('.favorites-toggle');
+const favoritesCheckbox = favoritesToggle.querySelector('.favorites-toggle-checkbox');
+
+favoritesCheckbox.addEventListener('change', () => {
+ 
+  container.innerHTML = "";
+
+  const isChecked = favoritesCheckbox.checked;
+
+  if (favorites.length === 0 && isChecked) {
+
+    movieInfo = document.getElementById("movie-title");
+    movieInfo.textContent = "Sorry!";
+
+    var noOptsEl = document.createElement("li");
+    var noOptsPar = document.createElement("p");
+    noOptsEl.appendChild(noOptsPar);
+    noOptsPar.textContent = "No favorites have been added yet. Please, select a genre from the dropdown menu and click on the small circle that appears on hover on any movie card wish. "
+                            + " When the circle turns red, then the title is added to the 'My Favorites' list. If you choose so,click again to turn the circle gray and unselect the movie.";
+
+    streamOptsList.appendChild(noOptsEl);
+    modal.style.display = "block";
+
+  } else if (favorites.length=== 0 && !isChecked) {
+
+    streamOptsList.innerHTML ="";
+
+  }else if (favorites.length>0 && isChecked){
+
+    generateFavoriteCards();
+
+  } else {
+
+    return;
+
+  }
+});
+
+var selectedTitle; //The user will select the title by clicking on the corresponding movie card.
+//This arrays will be used to temporarily store the data fetched from Streaming Availability, especially while looping through the raw data.
+var movieStreamOpts = [];
+var movieStreamOpt = new Array(5);
+var movieData = new Array(4);
 
 // Get the modal
 var modal = document.getElementById("myModal");
 
-// Get the button that opens the modal
-var btnArray = document.getElementsByClassName("get-modal");
+// Get the button that opens the modal for each one of the movie cards. The text content of the button is the movie's title.
+var btnCollection = document.getElementsByClassName("get-modal");
 
 // Get the <span> element that closes the modal
 var span = document.getElementsByClassName("close")[0];
 
-// When the user clicks on the button, open the modal 
-//This solves the issue of opening the modal; however the button that appears on top the image when hovering over the card becomes superfluous
-for (let i = 0; i < btnArray.length; i++) {
-  btnArray[i].onclick = function () {
-    modal.style.display = "block";
-  }
+var streamOptsList = document.getElementById("stream-serv-blocks");
+
+/*When the user clicks on the button, this function accomplishes the following: the title is selected and passed as an argument to the fetchStreamAvail function,
+so that the streaming options available (if any) are retrieved. At the end of the process, the modal with clickable links to the pages from the distinct streaming services 
+will be shown.*/
+
+function getModal(event) {
+  selectedTitle = event.target.innerHTML;
+  console.log(selectedTitle);
+  streamOptsList.innerHTML = "";
+  fetchStreamAvail(selectedTitle);
 }
-// When the user clicks on <span> (x), close the modal
+
+// When the user clicks on <span> (x), the modal closes.
 span.onclick = function () {
   modal.style.display = "none";
 }
 
-// When the user clicks anywhere outside of the modal, close it
+// When the user clicks anywhere outside of the modal, it will close.
 window.onclick = function (event) {
   if (event.target == modal) {
     modal.style.display = "none";
   }
 }
+
+function fetchStreamAvail(selectedTitle) {
+
+  const XRapidAPIKey = '51eb24f287msh9f2cb4653c7af8fp11236fjsne4cdc84cdeab';
+
+  const XRapidAPIHost = "streaming-availability.p.rapidapi.com";
+
+
+
+  const streamAvailURL = 'https://streaming-availability.p.rapidapi.com/search/title?title=' + selectedTitle + '&country=us&show_type=movie&output_language=en';;
+  const streamAvailOptions = {
+    method: 'GET',
+    headers: {
+      'X-RapidAPI-Key': XRapidAPIKey,
+      'X-RapidAPI-Host': XRapidAPIHost
+    }
+  };
+
+
+  fetch(streamAvailURL, streamAvailOptions)
+    .then(function (response) {
+      if (!response.ok) { //If the response status is not within the 200s range, then halt the execution of the fetch request
+
+        return Promise.reject(response.statusText);;
+      }
+
+      return response.json();
+
+    }).then(function (data) {
+
+      if (!data) {
+        return;
+      }
+
+      console.log(data);
+      console.log(data.result);
+      console.log(data.result.length);
+
+      console.log(data.result[0]); //The database offers many similar titles with each search. I decided to go with the first one in the array
+
+      movieStreamOpts = data.result[0].streamingInfo.us;// This array will store the different streaming options available in the US for the given title
+
+      movieData = [data.result[0].title, data.result[0].year, data.result[0].imdbId, data.result[0].directors];
+
+      movieInfo = document.getElementById("movie-title");
+      movieInfo.innerHTML = movieData[0] + "   " + movieData[1] + " dir.: " + movieData[3];
+
+      movieExtInfo = document.getElementById("imdb"); //This element will allow the user to get more info from an external source:IMDB
+      movieExtInfo.setAttribute("href", "https://www.imdb.com/title/" + movieData[2]);
+      movieExtInfo.setAttribute("target", "_blank");
+      movieExtInfo.textContent = "Go to the IMDB for more info";
+
+      if (!movieStreamOpts) { //If there are no streaming options available, then the modal appears with a message telling so to the user.
+
+        var noOptsEl = document.createElement("li");
+        var noOptsPar = document.createElement("p");
+        noOptsEl.appendChild(noOptsPar);
+        noOptsPar.textContent = "Sorry! There are no streaming options available right now. You can still search for more info about the selected title by clicking on the above link."
+        streamOptsList.appendChild(noOptsEl);
+        modal.style.display = "block";
+
+      };
+
+      for (let k = 0; k < movieStreamOpts.length; k++) {//Looping through the streaming info.
+
+        movieStreamOpt[0] = movieStreamOpts[k].availableSince; //Original date since its been available on the service given as a Unix timestamp;
+        movieStreamOpt[1] = movieStreamOpts[k].link; //Link to the title's page on the service's website
+        movieStreamOpt[2] = movieStreamOpts[k].quality;//Indicates whether it is in standard, high or ultra-high definition
+        movieStreamOpt[3] = movieStreamOpts[k].service;//Name of the streaming service
+        movieStreamOpt[4] = movieStreamOpts[k].streamingType;//Indicates whether the service is premium, free, etc.
+
+
+        streamOptsList.innerHTML += createStreamServBlock(movieStreamOpt);// Creates a new block within the modal, displaying the info found on movieStreamOpt for each available service option and appends it to the corresponding <div> within the modal.
+
+        movieStreamOpt = []; // empties the array prior to the next loop iteration
+
+      };
+      modal.style.display = "block";
+
+    }).catch(function (err) {
+      console.log(err);
+    });
+
+}
+
+//This function creates a block for each of the streaming services that offer the movie title that was clicked. The Unix timestamp is converted into a human-readable format using dayjs() and a link to the movie's page on the service's site is provided.
+
+function createStreamServBlock(movieStreamOpt) {
+  return `<li>
+                   <a href="${movieStreamOpt[1]}" target ="_blank" class="flex items-center p-3 text-base font-bold text-gray-900 rounded-lg bg-gray-50 hover:bg-gray-100 group hover:shadow dark:bg-gray-600 dark:hover:bg-gray-500 dark:text-white">
+                       <span class="flex-1 ml-3 whitespace-pre"">${String(movieStreamOpt[3]).toUpperCase()}</span>
+                       <span class="flex-1 ml-3 whitespace-pre">Availible since: </span>
+                       <span class="flex-1 ml-3 whitespace-pre">${dayjs(dayjs.unix(movieStreamOpt[0])).format("ddd, D MMM, YYYY")}</span>"
+                       <span class="inline-flex items-center justify-center px-2 py-0.5 ml-3 text-xs font-medium text-gray-500 bg-gray-200 rounded dark:bg-gray-700 dark:text-gray-400">${movieStreamOpt[2]}</span>
+                       <span class="inline-flex items-center justify-center px-2 py-0.5 ml-3 text-xs font-medium text-gray-500 bg-gray-200 rounded dark:bg-gray-700 dark:text-gray-400">${movieStreamOpt[4]}</span>
+                     </a>
+               </li>`;
+};
