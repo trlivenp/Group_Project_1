@@ -48,19 +48,10 @@ genreList.addEventListener("click", function (event) {
         return response.json();
 
       }).then(function (advMovieData) {
-
-        //console.log(advMovieData); //An object with the following properties: page, results, total_pages, total_results
-        //console.log(advMovieData.results); //An array with 20 elements, each one of them representing a movie (about 20 movies per page)
-        //console.log(data.results.length);//Outputs "20"
         if (advMovieData !== undefined) {
           for (let i = 0; i < advMovieData.results.length; i++) {
 
             if (advMovieData.results[i].vote_average >= 7 && advMovieData.results[i].original_language == "en") {
-              //console.log(data.results[i].original_title);
-
-              //data.results[i].original_title; //The variable temporarily stores the title of a movie from the chosen genre.
-
-              //console.log(data.results[i].id); //Apparently, it is not the imdb.com id
 
               fetchOmdbInfo(advMovieData.results[i].original_title);//For each movie from the selected genre, with a score of at least 8 and originally in english, we are going to gather data using OMDB in order to create a card for it.
 
@@ -78,7 +69,7 @@ genreList.addEventListener("click", function (event) {
 
 function fetchOmdbInfo(movieTitle) {
 
-  const omdbAPIKey = "c049ffc"; //API key to OMDB
+  const omdbAPIKey = "c049ffc";
 
   var omdbURL, omdbData;
 
@@ -101,23 +92,6 @@ function fetchOmdbInfo(movieTitle) {
       console.log(omdbData);
 
       container.innerHTML += createCard(omdbData.Poster, omdbData.Genre, movieTitle, omdbData.Plot, omdbData.Rated, omdbData.Runtime, omdbData.imdbID); //Calling the createCard function in order to create another movie card and add it to the <div> with class "".container"
-      /*All of the data below could be retrieved if we wanted to*/
-
-      //console.log(oData.Actors);
-      //console.log(oData.Country);
-      //console.log(oData.Director);
-      //console.log(oData.Genre);
-      //console.log(oData.Language);
-      //console.log(oData.Metascore);
-      //console.log(oData.Rated);
-      //console.log(oData.Runtime);
-      //console.log(oData.Title);
-      //console.log(oData.Writer);
-      //console.log(oData.Year);
-      //console.log(oData.imdbID);
-      //console.log(oData.tomatoMeter);
-      //console.log(oData.tomatoUserRating);
-
     });
 
 }
@@ -125,12 +99,15 @@ function fetchOmdbInfo(movieTitle) {
 //Declaring the function that will be called by the fetchOmdbInfo function in order to create and display a card for each movie title from the chosen genre
 
 function createCard(imageSrc, tag, title, summary, rating, runtime, imdbID) {
+  const favorites = JSON.parse(localStorage.getItem('favorites')) || [];
+  const isFavorite = favorites.includes(imdbID);
+
   return `
-    <div class="card u-clearfix" data-favorite="false" data-card-id="${imdbID}"> 
+    <div class="card u-clearfix" data-favorite="${isFavorite}" data-card-id="${imdbID}"> 
       <div class="card-media">
         <img src="${imageSrc}" alt="${title}-poster" class="card-media-img" />
-        <div class="card-media-preview u-flex-center favorite-button" data-card-id="${imdbID}">
-        </svg>
+        <div class="card-media-preview u-flex-center favorite-button ${isFavorite ? 'favorite' : ''}" data-card-id="${imdbID}">
+      
         </div>
         <span class="card-media-tag card-media-tag">${tag}</span>
       </div>
@@ -174,49 +151,51 @@ function generateFavoriteCards() {
     fetchOmdbInfoById(imdbID);
   });
 };
+document.addEventListener('DOMContentLoaded', function () {
+  container.addEventListener('click', function (event) {
+    // Check if the clicked element has the class "favorite-button"
+    if (event.target.classList.contains('favorite-button')) {
+      // Handle favorite button click heres
+      const imdbID = event.target.getAttribute('data-card-id');
+      toggleFavorite(imdbID);
 
-container.addEventListener('click', function (event) {
-  // Check if the clicked element has the class "favorite-button"
-  if (event.target.classList.contains('favorite-button')) {
-    // Handle favorite button click heres
-    const imdbID = event.target.getAttribute('data-card-id');
-    toggleFavorite(imdbID);
+      // Update UI to reflect the change in favorite status
+      const isFavorite = JSON.parse(localStorage.getItem('favorites')).includes(imdbID);
+      const card = event.target.closest('.card');
+      card.dataset.favorite = isFavorite;
 
-    // Update UI to reflect the change in favorite status
-    const isFavorite = JSON.parse(localStorage.getItem('favorites')).includes(imdbID);
-    const card = event.target.closest('.card');
-    card.dataset.favorite = isFavorite;
-
-    // Toggle the 'favorite' class for the button
-    event.target.classList.toggle('favorite', isFavorite);
-  }
-});
-
-const favoritesToggle = document.querySelector('.favorites-toggle');
-const favoritesCheckbox = favoritesToggle.querySelector('.favorites-toggle-checkbox');
-const favoritesSwitch = favoritesToggle.querySelector('.favorites-toggle-switch');
-
-// Function to update the display of movies based on favorites toggle
-function updateMovieDisplay() {
-  const allCards = document.querySelectorAll('.card');
-  const isFavoritesOnly = favoritesCheckbox.checked;
-
-  allCards.forEach(card => {
-    if (isFavoritesOnly && card.dataset.favorite !== 'true') {
-      card.style.display = 'none';
-    } else {
-      card.style.display = 'block';
+      // Toggle the 'favorite' class for the button
+      event.target.classList.toggle('favorite', isFavorite);
     }
   });
-}
 
-// Event listener for favorites toggle change
-favoritesCheckbox.addEventListener('change', () => {
+  const favoritesToggle = document.querySelector('.favorites-toggle');
+  const favoritesCheckbox = favoritesToggle.querySelector('.favorites-toggle-checkbox');
+  const favoritesSwitch = favoritesToggle.querySelector('.favorites-toggle-switch');
+
+  // Function to update the display of movies based on favorites toggle
+  function updateMovieDisplay() {
+    const allCards = document.querySelectorAll('.card');
+    const isFavoritesOnly = favoritesCheckbox.checked;
+
+    allCards.forEach(card => {
+      if (isFavoritesOnly && card.dataset.favorite !== 'true') {
+        card.style.display = 'none';
+      } else {
+        card.style.display = 'block';
+      }
+    });
+  }
+
+  // Event listener for favorites toggle change
+  favoritesCheckbox.addEventListener('change', () => {
+    updateMovieDisplay();
+  });
+
+  // Initially update movie display based on current favorites toggle state
+  generateFavoriteCards();
   updateMovieDisplay();
 });
-
-// Initially update movie display based on current favorites toggle state
-updateMovieDisplay();
 
 var selectedTitle; //The user will select the title by clicking on the corresponding movie card.
 //This arrays will be used to temporarily store the data fetched from Streaming Availability, especially while looping through the raw data.
