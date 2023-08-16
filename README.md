@@ -9,7 +9,7 @@ N/A
 
 ## Usage
 
-You can access the website here: https://trlivenp.github.io/What_to_Watch/
+You can access the single-page app here: https://trlivenp.github.io/What_to_Watch/
 
 When you open this page, you will be presented with a screen that looks like this:
 
@@ -45,11 +45,23 @@ And here is how the page looks after the "My Favorites" slider is activated.
 
 ## Credits
 
+The collaborators on this project were:
+
 Jesse LoCascio
 
 Tristan Livengood
 
 Jonathan Maldonado-Guemarez
+
+The GitHub repo for the project can be found at: https://github.com/trlivenp/What_to_Watch
+
+The Normalize.css (used to do a CSS reset) was downloaded from: https://necolas.github.io/normalize.css/
+
+The .gitignore file was taken from the BootCamp repo located at: https://git.bootcampcontent.com/
+
+Special thanks: 
+
+To the server-side APIs used to retrieve data, helping to create the dynamic elements on display:
 
 Advanced Movie Search API
 
@@ -57,11 +69,11 @@ Online Movie Database API
 
 Streaming Availability API
 
+And finally, to the third party APIs that helped make this project look good:
+
 Tailwind CSS
 
 Google Fonts
-
-Font Awesome
 
 
 ## License
